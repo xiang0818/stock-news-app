@@ -1,13 +1,16 @@
 <template>
     <div>
-      <div class="single-column">
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+      <div v-else class="single-column">
         <news-card
           v-for="news in displayedNewsList"
           :key="news.id"
           :news="news"
         />
       </div>
-      <div v-if="displayedNewsList.length === 0" class="no-news">
+      <div v-if="displayedNewsList.length === 0 && !errorMessage" class="no-news">
         没有找到相关新闻
       </div>
     </div>
@@ -38,7 +41,8 @@
         refreshInterval: null,
         lastTimestamp: '',
         countdown: 10,
-        countdownInterval: null
+        countdownInterval: null,
+        errorMessage: ''
       };
     },
     computed: {
@@ -52,6 +56,7 @@
     methods: {
       async fetchLatestNews() {
         try {
+          this.errorMessage = '';
           const currentTime = Math.floor(Date.now() / 1000).toString();
           
           if (!this.lastTimestamp && this.newsList.length > 0) {
@@ -60,7 +65,15 @@
           }
           
           const response = await newsApi.getNews(1, this.selectedTag, this.lastTimestamp);
-          const newItems = response.data.data.list || [];
+          
+          // 检查响应结构
+          if (!response.data || !response.data.data) {
+            this.errorMessage = '服务器返回的数据格式不正确';
+            return;
+          }
+          
+          const data = response.data.data;
+          const newItems = data.list || [];
           
           if (newItems.length > 0) {
             // 更新时间戳为最新的文章时间
@@ -74,6 +87,9 @@
           this.$emit('refresh-countdown-reset');
         } catch (error) {
           console.error('自动刷新新闻失败:', error);
+          this.errorMessage = `自动刷新失败: ${error.message || '未知错误'}`;
+          // 即使出错也重置倒计时
+          this.$emit('countdown-update', 10);
         }
       },
       startAutoRefresh() {
@@ -102,11 +118,15 @@
           clearInterval(this.countdownInterval);
           this.countdownInterval = null;
         }
+      },
+      resetError() {
+        this.errorMessage = '';
       }
     },
     watch: {
       newsList: {
         handler(newVal) {
+          this.resetError();
           if (newVal.length > 0) {
             this.localNewsList = [];
             if (newVal[0]) {
@@ -119,6 +139,7 @@
       selectedTag: {
         handler() {
           // 当tag变化时，重置本地列表和时间戳
+          this.resetError();
           this.localNewsList = [];
           this.lastTimestamp = this.newsList[0]?.ctime || '';
         }
@@ -147,5 +168,15 @@
     font-size: 1.2rem;
     color: var(--grey-color);
     width: 100%;
+  }
+  
+  .error-message {
+    text-align: center;
+    padding: 1rem;
+    background-color: #fff3f3;
+    color: #e74c3c;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 1rem;
   }
   </style>

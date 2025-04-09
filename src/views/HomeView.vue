@@ -24,6 +24,13 @@
       
       <loading-spinner v-if="loading" />
       
+      <div v-else-if="errorMessage" class="error-container">
+        <div class="error-message">{{ errorMessage }}</div>
+        <button @click="refreshNews" class="retry-btn">
+          重试
+        </button>
+      </div>
+      
       <template v-else>
         <news-list
           :newsList="displayedNews"
@@ -64,7 +71,8 @@
         loading: true,
         hasMore: true,
         lastUpdateTime: null,
-        countdown: 10
+        countdown: 10,
+        errorMessage: ''
       };
     },
     created() {
@@ -74,17 +82,34 @@
       async fetchInitialNews() {
         try {
           this.loading = true;
+          this.errorMessage = '';
+          
           const response = await newsApi.getInitialNews(this.selectedFilter);
-          const { list, filter, total } = response.data.data;
+          
+          // 验证响应数据结构
+          if (!response.data || !response.data.data) {
+            this.errorMessage = '服务器返回的数据格式不正确';
+            return;
+          }
+          
+          const responseData = response.data.data;
+          const list = responseData.list || [];
+          const filter = responseData.filter || [];
+          const total = responseData.total || 0;
           
           this.allNewsList = list;
           this.displayedNews = list.slice(0, this.displayLimit);
-          this.filters = filter;
+          this.filters = filter.length > 0 ? filter : this.filters;
           this.hasMore = this.displayLimit < this.allNewsList.length;
+          
+          if (list.length === 0) {
+            this.errorMessage = '暂无新闻数据';
+          }
           
           this.updateLastUpdateTime();
         } catch (error) {
           console.error('获取新闻失败:', error);
+          this.errorMessage = `获取新闻失败: ${error.message || '未知错误'}`;
         } finally {
           this.loading = false;
         }
@@ -104,6 +129,7 @@
         this.displayLimit = 20;
         this.allNewsList = [];
         this.displayedNews = [];
+        this.errorMessage = '';
         this.fetchInitialNews();
       },
       
@@ -111,6 +137,7 @@
         this.displayLimit = 20;
         this.allNewsList = [];
         this.displayedNews = [];
+        this.errorMessage = '';
         this.fetchInitialNews();
       },
       
@@ -179,6 +206,35 @@
     font-size: 0.9rem;
     color: var(--primary-color);
     font-weight: 500;
+  }
+  
+  .error-container {
+    text-align: center;
+    margin: 2rem 0;
+    padding: 2rem;
+    background-color: #fff3f3;
+    border-radius: 8px;
+  }
+  
+  .error-message {
+    color: #e74c3c;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .retry-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s;
+  }
+  
+  .retry-btn:hover {
+    background-color: #c0392b;
   }
   
   .load-more-container {
