@@ -3,7 +3,16 @@
     <div class="modal-container">
       <div class="modal-header">
         <h3 class="modal-title">{{ title }}</h3>
-        <button class="close-button" @click="closeModal">&times;</button>
+        <div class="modal-actions">
+          <button class="open-new-window-button" @click="openInNewWindow" title="在新窗口打开">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+          </button>
+          <button class="close-button" @click="closeModal">&times;</button>
+        </div>
       </div>
       <div class="modal-content">
         <iframe 
@@ -39,6 +48,11 @@ export default {
   methods: {
     closeModal() {
       this.$emit('close');
+    },
+    openInNewWindow() {
+      if (this.url) {
+        window.open(this.url, '_blank');
+      }
     }
   },
   watch: {
@@ -99,6 +113,35 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 85%;
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.open-new-window-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--grey-color);
+  transition: color 0.3s;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.open-new-window-button:hover {
+  color: var(--accent-color);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.open-new-window-button svg {
+  width: 16px;
+  height: 16px;
 }
 
 .close-button {
