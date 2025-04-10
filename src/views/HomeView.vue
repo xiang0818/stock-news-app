@@ -200,12 +200,17 @@
   .update-info {
     display: flex;
     gap: 1.5rem;
+    flex: 1;
   }
   
   .last-update, .next-refresh {
     font-size: 0.9rem;
     color: var(--primary-color);
     font-weight: 500;
+  }
+  
+  .next-refresh {
+    margin-right: 2rem;
   }
   
   .error-container {

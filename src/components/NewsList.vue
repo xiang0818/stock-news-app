@@ -8,22 +8,33 @@
           v-for="news in displayedNewsList"
           :key="news.id"
           :news="news"
+          @show-news-detail="openNewsModal"
         />
       </div>
       <div v-if="displayedNewsList.length === 0 && !errorMessage" class="no-news">
         没有找到相关新闻
       </div>
+      
+      <!-- 新闻弹窗 -->
+      <news-modal
+        :show="showModal"
+        :url="currentNewsUrl"
+        :title="currentNewsTitle"
+        @close="closeModal"
+      />
     </div>
   </template>
   
   <script>
   import NewsCard from '@/components/NewsCard.vue';
+  import NewsModal from '@/components/NewsModal.vue';
   import newsApi from '@/services/api';
   
   export default {
     name: 'NewsList',
     components: {
-      NewsCard
+      NewsCard,
+      NewsModal
     },
     props: {
       newsList: {
@@ -42,7 +53,10 @@
         lastTimestamp: '',
         countdown: 10,
         countdownInterval: null,
-        errorMessage: ''
+        errorMessage: '',
+        showModal: false,
+        currentNewsUrl: '',
+        currentNewsTitle: ''
       };
     },
     computed: {
@@ -121,6 +135,15 @@
       },
       resetError() {
         this.errorMessage = '';
+      },
+      openNewsModal(newsData) {
+        this.currentNewsTitle = newsData.title;
+        this.currentNewsUrl = newsData.url;
+        this.showModal = true;
+      },
+      closeModal() {
+        this.showModal = false;
+        this.currentNewsUrl = '';
       }
     },
     watch: {

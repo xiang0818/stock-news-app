@@ -1,5 +1,5 @@
 <template>
-    <div class="news-card" :class="{'important': isImportant}" @click="openNews">
+    <div class="news-card" :class="{'important': isImportant}" @click="showNewsDetail">
       <div class="news-header">
         <div class="news-tags">
           <span 
@@ -62,8 +62,12 @@
       }
     },
     methods: {
-      openNews() {
-        window.open(this.news.url, '_blank');
+      showNewsDetail() {
+        // 发送事件给父组件，传递新闻标题和URL
+        this.$emit('show-news-detail', {
+          title: this.news.title,
+          url: this.news.url
+        });
       }
     }
   };
