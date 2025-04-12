@@ -5,7 +5,17 @@
           v-for="filter in filters" 
           :key="filter.id"
           class="filter-btn"
-          :class="{ active: filter.id === selectedFilter }"
+          :class="{ 
+            active: filter.id === selectedFilter,
+            'all': filter.name === '全部',
+            'important': filter.name === '重要',
+            'a-stock': filter.name === 'A股',
+            'hk-stock': filter.name === '港股',
+            'us-stock': filter.name === '美股',
+            'opportunity': filter.name === '机会',
+            'change': filter.name === '异动',
+            'announcement': filter.name === '公告'
+          }"
           @click="onFilterClick(filter.id)"
         >
           {{ filter.name }}
@@ -65,7 +75,39 @@
   }
   
   .filter-btn.active {
-    background-color: var(--secondary-color);
     color: white;
+  }
+  
+  /* 各类标签按钮的活动状态颜色 */
+  .filter-btn.active.all {
+    background-color: #3498db; /* 蓝色 */
+  }
+  
+  .filter-btn.active.important {
+    background-color: #de1c31; /* 红色 */
+  }
+  
+  .filter-btn.active.a-stock {
+    background-color: #ee3f4d; /* 紫色 */
+  }
+  
+  .filter-btn.active.hk-stock {
+    background-color: #f39c12; /* 橙色 */
+  }
+  
+  .filter-btn.active.us-stock {
+    background-color: #2c3e50; /* 深蓝色 */
+  }
+  
+  .filter-btn.active.opportunity {
+    background-color: #8e44ad; /* 深紫色 */
+  }
+  
+  .filter-btn.active.change {
+    background-color: #d35400; /* 棕色 */
+  }
+  
+  .filter-btn.active.announcement {
+    background-color: #7f8c8d; /* 灰色 */
   }
   </style>

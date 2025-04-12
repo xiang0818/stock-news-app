@@ -12,13 +12,26 @@
             <span v-if="lastUpdateTime" class="last-update">
               上次更新: {{ lastUpdateTime }}
             </span>
-            <span class="next-refresh">
-              下次刷新: {{ countdown }}秒
-            </span>
           </div>
-          <button @click="refreshNews" class="refresh-btn">
-            <i class="fas fa-sync-alt"></i> 立即刷新
-          </button>
+          
+          <div class="refresh-controls">
+            <div class="countdown-container">
+              <svg class="countdown-circle" width="36" height="36" viewBox="0 0 36 36">
+                <circle class="countdown-circle-bg" cx="18" cy="18" r="16" />
+                <circle 
+                  class="countdown-circle-progress" 
+                  cx="18" 
+                  cy="18" 
+                  r="16"
+                  :style="circleStyle"
+                />
+              </svg>
+              <span class="countdown-text">{{ countdown }}</span>
+            </div>
+            <button @click="refreshNews" class="refresh-btn" title="立即刷新">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+          </div>
         </div>
       </div>
       
@@ -74,6 +87,17 @@
         countdown: 10,
         errorMessage: ''
       };
+    },
+    computed: {
+      circleStyle() {
+        const circumference = 2 * Math.PI * 16;
+        const progress = this.countdown / 10;
+        const dashOffset = circumference * (1 - progress);
+        return {
+          strokeDasharray: `${circumference}px`,
+          strokeDashoffset: `${dashOffset}px`
+        };
+      }
     },
     created() {
       this.fetchInitialNews();
@@ -156,6 +180,12 @@
         this.countdown = 10;
         this.updateLastUpdateTime();
       }
+    },
+    watch: {
+      countdown(newVal) {
+        // 当倒计时变化时，动画会自动更新
+        // 因为circleStyle是计算属性
+      }
     }
   };
   </script>
@@ -179,38 +209,89 @@
     border-radius: 8px;
   }
   
-  .refresh-btn {
-    background-color: var(--secondary-color);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 16px;
-    cursor: pointer;
-    font-size: 0.9rem;
+  .refresh-controls {
     display: flex;
     align-items: center;
-    gap: 6px;
-    transition: background-color 0.3s;
+    gap: 0.6rem;
+    background-color: rgba(255, 255, 255, 0.6);
+    padding: 0.3rem 0.5rem;
+    border-radius: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .refresh-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s;
   }
   
   .refresh-btn:hover {
-    background-color: #3aa876;
+    background-color: #c0392b;
+    transform: rotate(180deg);
+  }
+  
+  .refresh-btn i {
+    font-size: 1rem;
   }
   
   .update-info {
     display: flex;
-    gap: 1.5rem;
+    align-items: center;
     flex: 1;
   }
   
-  .last-update, .next-refresh {
+  .last-update {
     font-size: 0.9rem;
     color: var(--primary-color);
     font-weight: 500;
   }
   
+  .countdown-container {
+    position: relative;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .countdown-circle {
+    transform: rotate(-90deg);
+  }
+  
+  .countdown-circle-bg {
+    fill: none;
+    stroke: #e0e0e0;
+    stroke-width: 3;
+  }
+  
+  .countdown-circle-progress {
+    fill: none;
+    stroke: #f1c40f;
+    stroke-width: 3;
+    stroke-linecap: round;
+    transform-origin: center;
+    transition: stroke-dashoffset 0.9s linear;
+  }
+  
+  .countdown-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--primary-color);
+  }
+  
   .next-refresh {
-    margin-right: 2rem;
+    display: none;
   }
   
   .error-container {

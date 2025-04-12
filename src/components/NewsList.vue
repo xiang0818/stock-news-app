@@ -1,5 +1,18 @@
 <template>
     <div>
+      <div class="search-container">
+        <input
+          type="text"
+          v-model="searchQuery"
+          class="search-input"
+          placeholder="搜索新闻标题或内容..."
+          @input="handleSearch"
+        />
+        <button v-if="searchQuery" @click="clearSearch" class="clear-button">
+          清除
+        </button>
+      </div>
+
       <div v-if="errorMessage" class="error-message">
         {{ errorMessage }}
       </div>
@@ -56,15 +69,24 @@
         errorMessage: '',
         showModal: false,
         currentNewsUrl: '',
-        currentNewsTitle: ''
+        currentNewsTitle: '',
+        searchQuery: '',
+        filteredNewsList: []
       };
     },
     computed: {
       displayedNewsList() {
-        return [...this.localNewsList, ...this.newsList];
+        if (this.searchQuery.trim() === '') {
+          return [...this.localNewsList, ...this.newsList];
+        } else {
+          return this.filteredNewsList;
+        }
       },
       countdownText() {
         return `${this.countdown}秒`;
+      },
+      allNewsList() {
+        return [...this.localNewsList, ...this.newsList];
       }
     },
     methods: {
@@ -112,16 +134,18 @@
         this.countdownInterval = setInterval(() => {
           this.countdown -= 1;
           if (this.countdown <= 0) {
+            this.fetchLatestNews();
             this.countdown = 10;
           }
           // 发送倒计时事件
           this.$emit('countdown-update', this.countdown);
         }, 1000);
         
-        // 设置刷新间隔
-        this.refreshInterval = setInterval(() => {
-          this.fetchLatestNews();
-        }, 10000);
+        // 移除原有的刷新间隔，依靠倒计时触发
+        if (this.refreshInterval) {
+          clearInterval(this.refreshInterval);
+          this.refreshInterval = null;
+        }
       },
       stopAutoRefresh() {
         if (this.refreshInterval) {
@@ -144,6 +168,23 @@
       closeModal() {
         this.showModal = false;
         this.currentNewsUrl = '';
+      },
+      handleSearch() {
+        const query = this.searchQuery.trim().toLowerCase();
+        if (query === '') {
+          this.filteredNewsList = [];
+          return;
+        }
+        
+        this.filteredNewsList = this.allNewsList.filter(news => {
+          const titleMatch = news.title && news.title.toLowerCase().includes(query);
+          const digestMatch = news.digest && news.digest.toLowerCase().includes(query);
+          return titleMatch || digestMatch;
+        });
+      },
+      clearSearch() {
+        this.searchQuery = '';
+        this.filteredNewsList = [];
       }
     },
     watch: {
@@ -178,6 +219,43 @@
   </script>
   
   <style scoped>
+  .search-container {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-input {
+    flex: 1;
+    padding: 0.8rem 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  
+  .search-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
+  }
+  
+  .clear-button {
+    margin-left: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    background-color: var(--light-grey);
+    color: var(--dark-color);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s;
+  }
+  
+  .clear-button:hover {
+    background-color: #e0e0e0;
+  }
+
   .single-column {
     display: flex;
     flex-direction: column;
