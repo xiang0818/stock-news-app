@@ -38,28 +38,31 @@
   --radius-pill: 50px;
 }
 
-/* 晚间主题 */
+/* 晚间主题 - 优化后的明亮配色 */
 .dark-theme {
-  /* 主色调 */
-  --primary-color: #234d82;  
-  --secondary-color: #3498db;  
-  --functional-color: #1a94bc;
+  /* 主色调 - 更鲜明 */
+  --primary-color: #2980b9;  
+  --secondary-color: #38b0de;  
+  --functional-color: #1fb8e2;
   
-  /* 功能色保持不变，以确保信息一致性 */
+  /* 功能色保持不变，以确保信息一致性，但饱和度更高 */
+  --up-color: #ff3a4c;
+  --warning-color: #ffb142;
+  --accent-color: #a55eea;
   
-  /* 中性色 */
-  --dark-color: #e0e0e0;  
-  --grey-color: #a0a0a0;  
-  --light-grey: #2c3e50;  
-  --border-color: #4a4a4a;  
+  /* 中性色 - 更高对比度 */
+  --dark-color: #f0f0f0;  
+  --grey-color: #c5c5c5;  
+  --light-grey: #2a3a4a;  
+  --border-color: #3d5a7d;  
   
-  /* 背景色 */
-  --bg-primary: #1a1a2e;  
-  --bg-secondary: #1a365d;  
-  --bg-card: #293241;  
+  /* 背景色 - 更清晰的深色 */
+  --bg-primary: #162639;  
+  --bg-secondary: #1e3a59;  
+  --bg-card: #1f3854;  
   
-  /* 阴影加深 */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.25);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,0.35);
+  /* 阴影加深并添加蓝色调 */
+  --shadow-sm: 0 1px 3px rgba(0,30,60,0.35);
+  --shadow-md: 0 4px 6px rgba(0,30,60,0.4);
+  --shadow-lg: 0 10px 15px rgba(0,30,60,0.45);
 } 

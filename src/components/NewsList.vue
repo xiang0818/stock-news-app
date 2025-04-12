@@ -362,14 +362,63 @@
   
   /* 暗黑模式适配 */
   .dark-theme .search-input {
-    color: var(--bg-card);
+    color: #ffffff;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+  
+  .dark-theme .search-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .dark-theme .search-wrapper {
+    background-color: rgba(31, 184, 226, 0.05);
+    border-color: var(--border-color);
+    border-left-color: var(--functional-color);
+  }
+  
+  .dark-theme .search-wrapper:focus-within {
+    background-color: rgba(31, 184, 226, 0.1);
+    box-shadow: 0 0 15px rgba(31, 184, 226, 0.2);
+    border-color: var(--functional-color);
+    backdrop-filter: blur(2px);
+  }
+  
+  .dark-theme .search-icon {
+    color: var(--functional-color);
+    font-size: 1.1rem;
+    text-shadow: 0 0 5px rgba(31, 184, 226, 0.5);
+  }
+  
+  .dark-theme .clear-button {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .dark-theme .clear-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
   }
   
   .dark-theme .no-news {
-    border-color: #3a3a3a;
+    border-color: var(--border-color);
+    background-color: rgba(31, 184, 226, 0.05);
+  }
+  
+  .dark-theme .no-news p {
+    color: #e0f4ff;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+  
+  .dark-theme .no-results-icon {
+    color: var(--functional-color);
+    text-shadow: 0 0 10px rgba(31, 184, 226, 0.5);
   }
   
   .dark-theme .error-message {
-    background-color: rgba(222, 28, 49, 0.15);
+    background-color: rgba(255, 58, 76, 0.15);
+    border-color: var(--up-color);
+    font-weight: 500;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   }
   </style>

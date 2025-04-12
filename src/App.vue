@@ -179,15 +179,39 @@ a:hover {
   transition: all 0.3s;
   z-index: 2;
   margin-right: 1rem;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .theme-toggle:hover {
   background-color: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 }
 
 .theme-toggle i {
   font-size: 1.2rem;
+}
+
+.dark-theme .theme-toggle {
+  background-color: rgba(31, 184, 226, 0.3);
+  box-shadow: 0 0 10px rgba(31, 184, 226, 0.2);
+  border: 1px solid rgba(31, 184, 226, 0.2);
+}
+
+.dark-theme .theme-toggle:hover {
+  background-color: rgba(31, 184, 226, 0.5);
+  box-shadow: 0 0 15px rgba(31, 184, 226, 0.4);
+}
+
+.dark-theme .header {
+  background: linear-gradient(135deg, #2980b9, #1f3854);
+  box-shadow: 0 0 20px rgba(31, 184, 226, 0.15);
+}
+
+.dark-theme .footer {
+  background: linear-gradient(135deg, #2980b9, #1f3854);
+  box-shadow: 0 0 20px rgba(31, 184, 226, 0.15);
 }
 
 .header-decoration {

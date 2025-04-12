@@ -290,16 +290,52 @@
   
   /* 晚间模式下的适配 */
   .dark-theme .news-card {
-    border-color: #3a3a3a;
+    border-color: var(--border-color);
+    box-shadow: 0 0 15px rgba(26, 148, 188, 0.1);
+  }
+  
+  .dark-theme .news-card:hover {
+    box-shadow: 0 0 20px rgba(26, 148, 188, 0.25);
+    border-color: var(--functional-color);
   }
   
   .dark-theme .news-header,
   .dark-theme .news-footer {
-    border-color: #3a3a3a;
+    border-color: var(--border-color);
   }
   
   .dark-theme .news-digest {
-    background-color: rgba(255, 255, 255, 0.03);
+    background-color: rgba(0, 40, 80, 0.15);
+  }
+  
+  .dark-theme .news-title {
+    color: #ffffff;
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+  
+  .dark-theme .news-time {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--grey-color);
+  }
+  
+  .dark-theme .news-tag {
+    background-color: var(--bg-secondary);
+    color: #ffffff;
+  }
+  
+  .dark-theme .news-stock {
+    background-color: rgba(56, 176, 222, 0.15);
+    color: #ffffff;
+  }
+  
+  .dark-theme .news-view {
+    background-color: rgba(31, 184, 226, 0.15);
+    color: #e0f4ff;
+  }
+  
+  .dark-theme .news-card:hover .news-view {
+    background-color: var(--functional-color);
+    color: white;
   }
   </style>
   

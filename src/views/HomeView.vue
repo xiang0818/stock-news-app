@@ -35,6 +35,26 @@
         </div>
       </div>
       
+      <!-- 悬浮刷新控件 -->
+      <div class="floating-refresh">
+        <div class="floating-countdown">
+          <svg class="countdown-circle" width="36" height="36" viewBox="0 0 36 36">
+            <circle class="countdown-circle-bg" cx="18" cy="18" r="16" />
+            <circle 
+              class="countdown-circle-progress" 
+              cx="18" 
+              cy="18" 
+              r="16"
+              :style="circleStyle"
+            />
+          </svg>
+          <span class="countdown-text">{{ countdown }}</span>
+        </div>
+        <button @click="refreshNews" class="floating-refresh-btn" title="立即刷新">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </div>
+      
       <loading-spinner v-if="loading" />
       
       <div v-else-if="errorMessage" class="error-container">
@@ -101,6 +121,16 @@
     },
     created() {
       this.fetchInitialNews();
+    },
+    mounted() {
+      this.fetchInitialNews();
+      
+      // 监听滚动事件，控制浮动刷新按钮的显示和隐藏
+      window.addEventListener('scroll', this.handleScroll);
+    },
+    beforeDestroy() {
+      // 移除滚动事件监听
+      window.removeEventListener('scroll', this.handleScroll);
     },
     methods: {
       async fetchInitialNews() {
@@ -179,6 +209,15 @@
       resetCountdown() {
         this.countdown = 10;
         this.updateLastUpdateTime();
+      },
+      
+      handleScroll() {
+        const floatingRefresh = document.querySelector('.floating-refresh');
+        if (window.scrollY > 300) {
+          floatingRefresh.classList.add('visible');
+        } else {
+          floatingRefresh.classList.remove('visible');
+        }
       }
     },
     watch: {
@@ -341,5 +380,92 @@
   
   .load-more-btn:hover {
     background-color: #d1d8e0;
+  }
+  
+  /* 悬浮刷新控件 */
+  .floating-refresh {
+    position: fixed;
+    right: 20px;
+    bottom: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 20px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    transition: all 0.3s;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  .floating-countdown {
+    position: relative;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .floating-refresh-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+  }
+  
+  .floating-refresh-btn:hover {
+    background-color: #c0392b;
+    transform: rotate(180deg);
+  }
+  
+  /* 暗黑模式下的浮动刷新按钮 */
+  .dark-theme .floating-refresh {
+    background-color: rgba(30, 39, 46, 0.8);
+    border-color: rgba(31, 184, 226, 0.3);
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.4);
+  }
+  
+  .dark-theme .floating-refresh-btn {
+    background-color: #ff3a4c;
+  }
+  
+  .dark-theme .floating-refresh-btn:hover {
+    background-color: #d32f3d;
+  }
+  
+  /* 移动端适配 */
+  @media (max-width: 767px) {
+    .floating-refresh {
+      bottom: 70px;
+      right: 15px;
+      padding: 8px;
+    }
+    
+    .news-refresh {
+      display: none; /* 在移动端隐藏顶部刷新控件 */
+    }
+  }
+  
+  /* 在桌面端隐藏浮动刷新按钮，当页面滚动超过一定高度时显示 */
+  @media (min-width: 768px) {
+    .floating-refresh {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px);
+    }
+    
+    .floating-refresh.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
   }
   </style>

@@ -144,6 +144,8 @@
     align-items: center;
     font-weight: 500;
     border: var(--light-border) solid transparent;
+    position: relative;
+    overflow: hidden;
   }
   
   .filter-icon {
@@ -157,13 +159,33 @@
     background-color: #e3e8ed;
     transform: translateY(-2px);
     border-color: var(--border-color);
+    box-shadow: var(--shadow-sm);
   }
   
   .filter-btn.active {
     color: white;
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-md);
     transform: translateY(-2px);
     border: none;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .filter-btn:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(rgba(255, 255, 255, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .filter-btn:hover:after,
+  .filter-btn.active:after {
+    opacity: 1;
   }
   
   /* 各类标签按钮的活动状态颜色 */
@@ -201,10 +223,46 @@
   
   /* 暗黑模式适配 */
   .dark-theme .filter-container {
-    border-color: #3a3a3a;
+    border-color: var(--border-color);
+    box-shadow: 0 0 15px rgba(31, 184, 226, 0.05);
+  }
+  
+  .dark-theme .filter-title {
+    color: #ffffff;
   }
   
   .dark-theme .filter-subtitle {
-    background-color: rgba(26, 148, 188, 0.2);
+    background-color: rgba(31, 184, 226, 0.2);
+    color: #e0f4ff;
+  }
+  
+  .dark-theme .filter-btn {
+    background-color: rgba(31, 184, 226, 0.05);
+    color: #e0f4ff;
+    border-color: rgba(31, 184, 226, 0.1);
+  }
+  
+  .dark-theme .filter-btn:hover {
+    background-color: rgba(31, 184, 226, 0.1);
+    box-shadow: 0 0 10px rgba(31, 184, 226, 0.1);
+  }
+  
+  .dark-theme .filter-btn.active {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    letter-spacing: 0.5px;
+  }
+  
+  /* 暗黑模式下的按钮颜色调整 */
+  .dark-theme .filter-btn.active.all {
+    background-color: #38b0de;
+  }
+  
+  .dark-theme .filter-btn.active.important {
+    background-color: #ff3a4c;
+  }
+  
+  .dark-theme .filter-btn.active.a-stock {
+    background-color: #ff5b69;
   }
   </style>
