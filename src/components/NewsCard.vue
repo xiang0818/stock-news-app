@@ -51,6 +51,15 @@
         required: true
       }
     },
+    data() {
+      return {
+        scrollEnabled: false,
+        hoverTimer: null,
+        touchStartY: 0,
+        touchMoveY: 0,
+        isTouching: false
+      };
+    },
     computed: {
       isImportant() {
         return this.news.color === '2' || this.news.import === '3';
@@ -76,6 +85,97 @@
           title: this.news.title,
           url: this.news.url
         });
+      },
+      
+      // 处理鼠标事件
+      handleMouseEnter(event) {
+        if (event.target.classList.contains('news-digest')) {
+          this.hoverTimer = setTimeout(() => {
+            this.scrollEnabled = true;
+            event.target.style.overflowY = 'auto';
+            event.target.style.scrollbarColor = 'rgba(0, 0, 0, 0.2) transparent';
+          }, 500); // 延迟500毫秒
+        }
+      },
+      
+      handleMouseLeave(event) {
+        if (event.target.classList.contains('news-digest')) {
+          clearTimeout(this.hoverTimer);
+          this.scrollEnabled = false;
+          event.target.style.overflowY = 'hidden';
+          event.target.style.scrollbarColor = 'transparent transparent';
+        }
+      },
+      
+      // 处理触摸事件
+      handleTouchStart(event) {
+        if (event.target.classList.contains('news-digest')) {
+          this.touchStartY = event.touches[0].clientY;
+          this.isTouching = true;
+          
+          // 暂时禁止父容器的点击事件传播
+          event.stopPropagation();
+        }
+      },
+      
+      handleTouchMove(event) {
+        if (this.isTouching && event.target.classList.contains('news-digest')) {
+          this.touchMoveY = event.touches[0].clientY;
+          const scrollElement = event.target;
+          
+          // 计算滚动距离
+          const touchDiff = this.touchStartY - this.touchMoveY;
+          
+          if (Math.abs(touchDiff) > 10) { // 确认是滚动操作而不是点击
+            scrollElement.style.overflowY = 'auto';
+            
+            // 阻止页面滚动
+            event.preventDefault();
+          }
+        }
+      },
+      
+      handleTouchEnd(event) {
+        if (event.target.classList.contains('news-digest')) {
+          const scrollElement = event.target;
+          
+          // 如果只是轻触而没有移动，则认为是点击操作
+          if (Math.abs(this.touchStartY - this.touchMoveY) < 10) {
+            scrollElement.style.overflowY = 'hidden';
+          }
+          
+          // 重置触摸状态
+          this.isTouching = false;
+          this.touchStartY = 0;
+          this.touchMoveY = 0;
+        }
+      }
+    },
+    mounted() {
+      // 添加事件监听
+      const digestElement = this.$el.querySelector('.news-digest');
+      if (digestElement) {
+        digestElement.addEventListener('mouseenter', this.handleMouseEnter);
+        digestElement.addEventListener('mouseleave', this.handleMouseLeave);
+        digestElement.addEventListener('touchstart', this.handleTouchStart);
+        digestElement.addEventListener('touchmove', this.handleTouchMove);
+        digestElement.addEventListener('touchend', this.handleTouchEnd);
+      }
+    },
+    beforeDestroy() {
+      // 移除事件监听
+      const digestElement = this.$el.querySelector('.news-digest');
+      if (digestElement) {
+        digestElement.removeEventListener('mouseenter', this.handleMouseEnter);
+        digestElement.removeEventListener('mouseleave', this.handleMouseLeave);
+        digestElement.removeEventListener('touchstart', this.handleTouchStart);
+        digestElement.removeEventListener('touchmove', this.handleTouchMove);
+        digestElement.removeEventListener('touchend', this.handleTouchEnd);
+      }
+      
+      // 清除定时器
+      if (this.hoverTimer) {
+        clearTimeout(this.hoverTimer);
       }
     }
   };
@@ -185,7 +285,7 @@
     font-size: 0.95rem;
     margin-bottom: 1.2rem;
     max-height: 120px;
-    overflow-y: auto;
+    overflow-y: hidden;
     line-height: 1.6;
     opacity: 0.85;
     padding: 0.6rem;
@@ -193,7 +293,8 @@
     border-radius: var(--radius-small);
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
-    transition: scrollbar-color 0.3s;
+    transition: all 0.3s ease;
+    position: relative;
   }
   
   .news-digest::-webkit-scrollbar {
@@ -207,22 +308,37 @@
   .news-digest::-webkit-scrollbar-thumb {
     background-color: transparent;
     border-radius: 4px;
+    transition: background-color 0.3s ease;
   }
   
   .news-digest:hover::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: transparent;
   }
   
   .news-digest:hover {
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    scrollbar-color: transparent transparent;
   }
   
-  .dark-theme .news-digest:hover::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.2);
+  .news-digest::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 15px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.05));
+    border-radius: 0 0 var(--radius-small) var(--radius-small);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
   }
   
-  .dark-theme .news-digest:hover {
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  .news-digest:hover::after {
+    opacity: 1;
+  }
+  
+  .dark-theme .news-digest::after {
+    background: linear-gradient(transparent, rgba(255, 255, 255, 0.05));
   }
   
   .news-footer {
