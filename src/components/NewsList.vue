@@ -1,31 +1,38 @@
 <template>
     <div>
       <div class="search-container">
-        <input
-          type="text"
-          v-model="searchQuery"
-          class="search-input"
-          placeholder="搜索新闻标题或内容..."
-          @input="handleSearch"
-        />
-        <button v-if="searchQuery" @click="clearSearch" class="clear-button">
-          清除
-        </button>
+        <div class="search-wrapper">
+          <i class="fas fa-search search-icon"></i>
+          <input
+            type="text"
+            v-model="searchQuery"
+            class="search-input"
+            placeholder="搜索新闻标题或内容..."
+            @input="handleSearch"
+          />
+          <button v-if="searchQuery" @click="clearSearch" class="clear-button">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
       </div>
 
       <div v-if="errorMessage" class="error-message">
+        <i class="fas fa-exclamation-circle error-icon"></i>
         {{ errorMessage }}
       </div>
-      <div v-else class="single-column">
-        <news-card
-          v-for="news in displayedNewsList"
-          :key="news.id"
-          :news="news"
-          @show-news-detail="openNewsModal"
-        />
+      <div v-else class="news-list">
+        <transition-group name="news-fade" tag="div" class="single-column">
+          <news-card
+            v-for="news in displayedNewsList"
+            :key="news.id"
+            :news="news"
+            @show-news-detail="openNewsModal"
+          />
+        </transition-group>
       </div>
       <div v-if="displayedNewsList.length === 0 && !errorMessage" class="no-news">
-        没有找到相关新闻
+        <i class="fas fa-search no-results-icon"></i>
+        <p>没有找到相关新闻</p>
       </div>
       
       <!-- 新闻弹窗 -->
@@ -33,6 +40,7 @@
         :show="showModal"
         :url="currentNewsUrl"
         :title="currentNewsTitle"
+        :importance="currentNewsImportance"
         @close="closeModal"
       />
     </div>
@@ -70,6 +78,7 @@
         showModal: false,
         currentNewsUrl: '',
         currentNewsTitle: '',
+        currentNewsImportance: 'normal',
         searchQuery: '',
         filteredNewsList: []
       };
@@ -163,6 +172,16 @@
       openNewsModal(newsData) {
         this.currentNewsTitle = newsData.title;
         this.currentNewsUrl = newsData.url;
+        
+        // 根据新闻属性判断重要性
+        if (newsData.color === '2' || newsData.import === '3') {
+          this.currentNewsImportance = 'important';
+        } else if (newsData.tags && newsData.tags.some(tag => tag.name === '异动' || tag.name === '警示')) {
+          this.currentNewsImportance = 'warning';
+        } else {
+          this.currentNewsImportance = 'normal';
+        }
+        
         this.showModal = true;
       },
       closeModal() {
@@ -221,39 +240,62 @@
   <style scoped>
   .search-container {
     margin-bottom: 1.5rem;
+    position: relative;
+  }
+  
+  .search-wrapper {
     display: flex;
     align-items: center;
+    background-color: var(--bg-card);
+    border-radius: var(--radius-medium);
+    padding: 0 1.2rem;
+    box-shadow: var(--shadow-sm);
+    border: var(--light-border) solid var(--border-color);
+    border-left: var(--secondary-border) solid var(--functional-color);
+    transition: all 0.3s;
+  }
+  
+  .search-wrapper:focus-within {
+    box-shadow: var(--shadow-md);
+    border-color: var(--functional-color);
+    transform: translateY(-2px);
+  }
+  
+  .search-icon {
+    color: var(--functional-color);
+    margin-right: 0.5rem;
+    font-size: 1rem;
   }
   
   .search-input {
     flex: 1;
-    padding: 0.8rem 1rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    padding: 0.8rem 0;
+    border: none;
     font-size: 1rem;
     outline: none;
-    transition: border-color 0.3s;
-  }
-  
-  .search-input:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
+    background: transparent;
+    color: var(--dark-color);
   }
   
   .clear-button {
-    margin-left: 0.5rem;
-    padding: 0.5rem 1rem;
+    background: none;
     border: none;
-    background-color: var(--light-grey);
-    color: var(--dark-color);
-    border-radius: 6px;
+    color: var(--grey-color);
     cursor: pointer;
     font-size: 0.9rem;
-    transition: background-color 0.3s;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s;
   }
   
   .clear-button:hover {
-    background-color: #e0e0e0;
+    background-color: var(--light-grey);
+    color: var(--functional-color);
+  }
+
+  .news-list {
+    min-height: 200px;
+    position: relative;
   }
 
   .single-column {
@@ -266,18 +308,68 @@
   .no-news {
     text-align: center;
     padding: 3rem 0;
-    font-size: 1.2rem;
     color: var(--grey-color);
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-card);
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-sm);
+    border: var(--light-border) dashed var(--border-color);
+  }
+  
+  .no-results-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+    color: var(--functional-color);
+  }
+  
+  .no-news p {
+    font-size: 1.2rem;
+    margin: 0;
   }
   
   .error-message {
     text-align: center;
     padding: 1rem;
-    background-color: #fff3f3;
-    color: #e74c3c;
-    border-radius: 8px;
+    background-color: rgba(222, 28, 49, 0.1);
+    color: var(--up-color);
+    border-radius: var(--radius-medium);
     margin-bottom: 1rem;
     font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-left: var(--primary-border) solid var(--up-color);
+  }
+  
+  .error-icon {
+    margin-right: 0.5rem;
+    font-size: 1.2rem;
+  }
+  
+  /* 动画效果 */
+  .news-fade-enter-active, .news-fade-leave-active {
+    transition: all 0.5s;
+  }
+  .news-fade-enter, .news-fade-leave-to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  
+  /* 暗黑模式适配 */
+  .dark-theme .search-input {
+    color: var(--bg-card);
+  }
+  
+  .dark-theme .no-news {
+    border-color: #3a3a3a;
+  }
+  
+  .dark-theme .error-message {
+    background-color: rgba(222, 28, 49, 0.15);
   }
   </style>

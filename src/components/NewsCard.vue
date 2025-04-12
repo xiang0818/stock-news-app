@@ -10,7 +10,10 @@
             {{ tag.name }}
           </span>
         </div>
-        <time class="news-time">{{ formattedTime }}</time>
+        <time class="news-time">
+          <i class="far fa-clock time-icon"></i>
+          {{ formattedTime }}
+        </time>
       </div>
       
       <h3 class="news-title">{{ news.title }}</h3>
@@ -24,11 +27,16 @@
             :key="stock.stockCode"
             class="news-stock"
           >
+            <i class="fas fa-chart-line stock-icon"></i>
             {{ stock.name }}
           </span>
           <span v-if="news.stock.length > 3" class="news-stock-more">
             +{{ news.stock.length - 3 }}
           </span>
+        </div>
+        <div class="news-view">
+          <i class="fas fa-external-link-alt view-icon"></i>
+          查看详情
         </div>
       </div>
     </div>
@@ -75,21 +83,41 @@
   
   <style scoped>
   .news-card {
-    background-color: white;
-    border-radius: 8px;
+    background-color: var(--bg-card);
+    border-radius: var(--radius-medium);
     padding: 1.5rem;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s;
     cursor: pointer;
+    border-top: var(--light-border) solid var(--border-color);
+    border-left: var(--light-border) solid var(--border-color);
+    position: relative;
+    overflow: hidden;
   }
   
   .news-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
+    border-color: var(--functional-color);
   }
   
   .news-card.important {
-    border-left: 4px solid var(--accent-color);
+    border-left: var(--primary-border) solid var(--up-color);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .news-card.important::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 30px 30px 0;
+    border-color: transparent var(--up-color) transparent transparent;
+    z-index: 1;
   }
   
   .news-header {
@@ -97,6 +125,8 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px dashed var(--border-color);
   }
   
   .news-tags {
@@ -106,16 +136,34 @@
   }
   
   .news-tag {
-    background-color: var(--light-grey);
+    background-color: var(--bg-secondary);
     color: var(--primary-color);
     font-size: 0.8rem;
-    padding: 2px 8px;
-    border-radius: 4px;
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    font-weight: 500;
+    transition: all 0.3s;
+  }
+  
+  .news-tag:hover {
+    background-color: var(--secondary-color);
+    color: white;
+    transform: translateY(-2px);
   }
   
   .news-time {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: var(--grey-color);
+    display: flex;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.03);
+    padding: 3px 8px;
+    border-radius: var(--radius-small);
+  }
+  
+  .time-icon {
+    margin-right: 4px;
+    font-size: 0.8rem;
   }
   
   .news-title {
@@ -126,20 +174,64 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    color: var(--primary-color);
+    font-weight: 600;
+    padding-left: 0.3rem;
+    border-left: var(--secondary-border) solid var(--functional-color);
   }
   
   .news-digest {
-    color: var(--grey-color);
+    color: var(--dark-color);
     font-size: 0.95rem;
-    margin-bottom: 1rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    margin-bottom: 1.2rem;
+    max-height: 120px;
+    overflow-y: auto;
+    line-height: 1.6;
+    opacity: 0.85;
+    padding: 0.6rem;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: var(--radius-small);
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.3s;
+  }
+  
+  .news-digest::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  .news-digest::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .news-digest::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 4px;
+  }
+  
+  .news-digest:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+  
+  .news-digest:hover {
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  }
+  
+  .dark-theme .news-digest:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .dark-theme .news-digest:hover {
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
   }
   
   .news-footer {
     margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.8rem;
+    border-top: 1px dashed var(--border-color);
   }
   
   .news-stocks {
@@ -149,16 +241,65 @@
   }
   
   .news-stock {
-    background-color: rgba(66, 185, 131, 0.1);
+    background-color: rgba(52, 152, 219, 0.1);
     color: var(--secondary-color);
     font-size: 0.8rem;
-    padding: 2px 8px;
-    border-radius: 4px;
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    display: flex;
+    align-items: center;
+    transition: all 0.2s;
+  }
+  
+  .news-stock:hover {
+    background-color: rgba(52, 152, 219, 0.2);
+    transform: translateY(-2px);
+  }
+  
+  .stock-icon {
+    margin-right: 4px;
+    font-size: 0.75rem;
   }
   
   .news-stock-more {
     font-size: 0.8rem;
     color: var(--grey-color);
+    margin-left: 4px;
+  }
+  
+  .news-view {
+    font-size: 0.85rem;
+    color: var(--functional-color);
+    display: flex;
+    align-items: center;
+    transition: all 0.3s;
+    background-color: rgba(26, 148, 188, 0.1);
+    padding: 5px 10px;
+    border-radius: var(--radius-small);
+  }
+  
+  .view-icon {
+    margin-right: 4px;
+    font-size: 0.8rem;
+  }
+  
+  .news-card:hover .news-view {
+    background-color: var(--functional-color);
+    color: white;
+  }
+  
+  /* 晚间模式下的适配 */
+  .dark-theme .news-card {
+    border-color: #3a3a3a;
+  }
+  
+  .dark-theme .news-header,
+  .dark-theme .news-footer {
+    border-color: #3a3a3a;
+  }
+  
+  .dark-theme .news-digest {
+    background-color: rgba(255, 255, 255, 0.03);
   }
   </style>
   

@@ -1,0 +1,65 @@
+:root {
+  /* 主色调 */
+  --primary-color: #1a365d;  /* 深蓝色 - 主要颜色 */
+  --secondary-color: #3498db;  /* 蓝色 - 次要颜色 */
+  --functional-color: #1a94bc; /* 功能蓝 - 功能色 */
+  
+  /* 功能色 */
+  --up-color: #de1c31;  /* 红色 - 上涨颜色 */
+  --down-color: #3498db;  /* 蓝色 - 下跌颜色 */
+  --warning-color: #f39c12;  /* 橙色 - 警告颜色 */
+  --accent-color: #8e44ad;  /* 紫色 - 强调色 */
+  
+  /* 中性色 */
+  --dark-color: #2c3e50;  /* 深色文字 */
+  --grey-color: #7f8c8d;  /* 灰色文字 */
+  --light-grey: #f5f7fa;  /* 浅灰背景 */
+  --border-color: #e0e0e0;  /* 边框颜色 */
+  
+  /* 背景色 */
+  --bg-primary: #f5f7fa;  /* 主背景色 */
+  --bg-secondary: #e3f2fd;  /* 强调背景色 */
+  --bg-card: #ffffff;  /* 卡片背景色 */
+  
+  /* 阴影 */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+  
+  /* 模块关联强度 */
+  --primary-border: 3px;
+  --secondary-border: 2px;
+  --light-border: 1px;
+  
+  /* 圆角 */
+  --radius-large: 16px;
+  --radius-medium: 12px;
+  --radius-small: 8px;
+  --radius-pill: 50px;
+}
+
+/* 晚间主题 */
+.dark-theme {
+  /* 主色调 */
+  --primary-color: #234d82;  
+  --secondary-color: #3498db;  
+  --functional-color: #1a94bc;
+  
+  /* 功能色保持不变，以确保信息一致性 */
+  
+  /* 中性色 */
+  --dark-color: #e0e0e0;  
+  --grey-color: #a0a0a0;  
+  --light-grey: #2c3e50;  
+  --border-color: #4a4a4a;  
+  
+  /* 背景色 */
+  --bg-primary: #1a1a2e;  
+  --bg-secondary: #1a365d;  
+  --bg-card: #293241;  
+  
+  /* 阴影加深 */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.25);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.35);
+} 
