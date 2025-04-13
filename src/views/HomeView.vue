@@ -2,7 +2,6 @@
     <div class="home">
       <div class="header-section">
         <news-filter 
-          :filters="filters" 
           :selectedFilter="selectedFilter"
           @filter-changed="handleFilterChange" 
         />
@@ -57,13 +56,6 @@
       
       <loading-spinner v-if="loading" />
       
-      <div v-else-if="errorMessage" class="error-container">
-        <div class="error-message">{{ errorMessage }}</div>
-        <button @click="refreshNews" class="retry-btn">
-          重试
-        </button>
-      </div>
-      
       <template v-else>
         <news-list
           :newsList="displayedNews"
@@ -78,6 +70,14 @@
           </button>
         </div>
       </template>
+
+      <!-- Toast提示 -->
+      <div class="toast-container" v-if="showToast">
+        <div class="toast-message">
+          <i class="fas fa-exclamation-circle"></i>
+          {{ toastMessage }}
+        </div>
+      </div>
     </div>
   </template>
   
@@ -99,13 +99,14 @@
         allNewsList: [], // 存储所有获取到的新闻
         displayedNews: [], // 当前显示的新闻
         displayLimit: 20, // 初始显示20条
-        filters: [],
         selectedFilter: '21101', // 默认选择"全部"
         loading: true,
         hasMore: true,
         lastUpdateTime: null,
         countdown: 10,
-        errorMessage: ''
+        showToast: false,
+        toastMessage: '',
+        toastTimeout: null
       };
     },
     computed: {
@@ -131,42 +132,63 @@
     beforeDestroy() {
       // 移除滚动事件监听
       window.removeEventListener('scroll', this.handleScroll);
+      if (this.toastTimeout) {
+        clearTimeout(this.toastTimeout);
+      }
     },
     methods: {
       async fetchInitialNews() {
         try {
           this.loading = true;
-          this.errorMessage = '';
           
           const response = await newsApi.getInitialNews(this.selectedFilter);
           
           // 验证响应数据结构
           if (!response.data || !response.data.data) {
-            this.errorMessage = '服务器返回的数据格式不正确';
+            this.showToastMessage('服务器返回的数据格式不正确');
+            this.loading = false;
             return;
           }
           
           const responseData = response.data.data;
           const list = responseData.list || [];
-          const filter = responseData.filter || [];
           const total = responseData.total || 0;
           
           this.allNewsList = list;
           this.displayedNews = list.slice(0, this.displayLimit);
-          this.filters = filter.length > 0 ? filter : this.filters;
           this.hasMore = this.displayLimit < this.allNewsList.length;
           
           if (list.length === 0) {
-            this.errorMessage = '暂无新闻数据';
+            this.showToastMessage('暂无新闻数据');
           }
           
           this.updateLastUpdateTime();
         } catch (error) {
           console.error('获取新闻失败:', error);
-          this.errorMessage = `获取新闻失败: ${error.message || '未知错误'}`;
+          this.showToastMessage(`获取新闻失败: ${error.message || '未知错误'}`);
+          // 即使出错也显示空列表，而不是错误消息
+          this.allNewsList = [];
+          this.displayedNews = [];
+          this.hasMore = false;
         } finally {
           this.loading = false;
         }
+      },
+      
+      // 显示Toast提示消息
+      showToastMessage(message) {
+        this.toastMessage = message;
+        this.showToast = true;
+        
+        // 清除之前的超时
+        if (this.toastTimeout) {
+          clearTimeout(this.toastTimeout);
+        }
+        
+        // 3秒后自动关闭
+        this.toastTimeout = setTimeout(() => {
+          this.showToast = false;
+        }, 3000);
       },
       
       loadMoreNews() {
@@ -183,7 +205,6 @@
         this.displayLimit = 20;
         this.allNewsList = [];
         this.displayedNews = [];
-        this.errorMessage = '';
         this.fetchInitialNews();
       },
       
@@ -191,7 +212,6 @@
         this.displayLimit = 20;
         this.allNewsList = [];
         this.displayedNews = [];
-        this.errorMessage = '';
         this.fetchInitialNews();
       },
       
@@ -467,5 +487,50 @@
       pointer-events: auto;
       transform: translateY(0);
     }
+  }
+  
+  /* Toast样式 */
+  .toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    transition: all 0.3s;
+    animation: slideIn 0.3s forwards;
+  }
+  
+  .toast-message {
+    background-color: rgba(231, 76, 60, 0.9);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 300px;
+  }
+  
+  .toast-message i {
+    font-size: 1.2rem;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  /* 暗黑模式下的Toast */
+  .dark-theme .toast-message {
+    background-color: rgba(255, 82, 82, 0.8);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(4px);
   }
   </style>

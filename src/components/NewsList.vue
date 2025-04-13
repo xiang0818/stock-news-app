@@ -16,11 +16,7 @@
         </div>
       </div>
 
-      <div v-if="errorMessage" class="error-message">
-        <i class="fas fa-exclamation-circle error-icon"></i>
-        {{ errorMessage }}
-      </div>
-      <div v-else class="news-list">
+      <div class="news-list">
         <transition-group name="news-fade" tag="div" class="single-column">
           <news-card
             v-for="news in displayedNewsList"
@@ -30,7 +26,7 @@
           />
         </transition-group>
       </div>
-      <div v-if="displayedNewsList.length === 0 && !errorMessage" class="no-news">
+      <div v-if="displayedNewsList.length === 0" class="no-news">
         <i class="fas fa-search no-results-icon"></i>
         <p>没有找到相关新闻</p>
       </div>
@@ -43,6 +39,14 @@
         :importance="currentNewsImportance"
         @close="closeModal"
       />
+
+      <!-- Toast提示 -->
+      <div class="toast-container" v-if="showToast">
+        <div class="toast-message">
+          <i class="fas fa-exclamation-circle"></i>
+          {{ toastMessage }}
+        </div>
+      </div>
     </div>
   </template>
   
@@ -74,7 +78,9 @@
         lastTimestamp: '',
         countdown: 10,
         countdownInterval: null,
-        errorMessage: '',
+        showToast: false,
+        toastMessage: '',
+        toastTimeout: null,
         showModal: false,
         currentNewsUrl: '',
         currentNewsTitle: '',
@@ -86,6 +92,7 @@
     computed: {
       displayedNewsList() {
         if (this.searchQuery.trim() === '') {
+          // 直接返回所有新闻
           return [...this.localNewsList, ...this.newsList];
         } else {
           return this.filteredNewsList;
@@ -101,7 +108,6 @@
     methods: {
       async fetchLatestNews() {
         try {
-          this.errorMessage = '';
           const currentTime = Math.floor(Date.now() / 1000).toString();
           
           if (!this.lastTimestamp && this.newsList.length > 0) {
@@ -113,7 +119,7 @@
           
           // 检查响应结构
           if (!response.data || !response.data.data) {
-            this.errorMessage = '服务器返回的数据格式不正确';
+            this.showToastMessage('服务器返回的数据格式不正确');
             return;
           }
           
@@ -132,10 +138,25 @@
           this.$emit('refresh-countdown-reset');
         } catch (error) {
           console.error('自动刷新新闻失败:', error);
-          this.errorMessage = `自动刷新失败: ${error.message || '未知错误'}`;
+          this.showToastMessage(`自动刷新失败: ${error.message || '未知错误'}`);
           // 即使出错也重置倒计时
           this.$emit('countdown-update', 10);
         }
+      },
+      // 显示Toast提示消息
+      showToastMessage(message) {
+        this.toastMessage = message;
+        this.showToast = true;
+        
+        // 清除之前的超时
+        if (this.toastTimeout) {
+          clearTimeout(this.toastTimeout);
+        }
+        
+        // 3秒后自动关闭
+        this.toastTimeout = setTimeout(() => {
+          this.showToast = false;
+        }, 3000);
       },
       startAutoRefresh() {
         // 立即开始倒计时
@@ -165,9 +186,6 @@
           clearInterval(this.countdownInterval);
           this.countdownInterval = null;
         }
-      },
-      resetError() {
-        this.errorMessage = '';
       },
       openNewsModal(newsData) {
         this.currentNewsTitle = newsData.title;
@@ -209,7 +227,6 @@
     watch: {
       newsList: {
         handler(newVal) {
-          this.resetError();
           if (newVal.length > 0) {
             this.localNewsList = [];
             if (newVal[0]) {
@@ -222,7 +239,6 @@
       selectedTag: {
         handler() {
           // 当tag变化时，重置本地列表和时间戳
-          this.resetError();
           this.localNewsList = [];
           this.lastTimestamp = this.newsList[0]?.ctime || '';
         }
@@ -233,6 +249,9 @@
     },
     beforeDestroy() {
       this.stopAutoRefresh();
+      if (this.toastTimeout) {
+        clearTimeout(this.toastTimeout);
+      }
     }
   };
   </script>
@@ -332,25 +351,6 @@
     margin: 0;
   }
   
-  .error-message {
-    text-align: center;
-    padding: 1rem;
-    background-color: rgba(222, 28, 49, 0.1);
-    color: var(--up-color);
-    border-radius: var(--radius-medium);
-    margin-bottom: 1rem;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-left: var(--primary-border) solid var(--up-color);
-  }
-  
-  .error-icon {
-    margin-right: 0.5rem;
-    font-size: 1.2rem;
-  }
-  
   /* 动画效果 */
   .news-fade-enter-active, .news-fade-leave-active {
     transition: all 0.5s;
@@ -415,10 +415,48 @@
     text-shadow: 0 0 10px rgba(31, 184, 226, 0.5);
   }
   
-  .dark-theme .error-message {
-    background-color: rgba(255, 58, 76, 0.15);
-    border-color: var(--up-color);
-    font-weight: 500;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  /* Toast样式 */
+  .toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    transition: all 0.3s;
+    animation: slideIn 0.3s forwards;
+  }
+  
+  .toast-message {
+    background-color: rgba(231, 76, 60, 0.9);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 300px;
+  }
+  
+  .toast-message i {
+    font-size: 1.2rem;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  /* 暗黑模式下的Toast */
+  .dark-theme .toast-message {
+    background-color: rgba(255, 82, 82, 0.8);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(4px);
   }
   </style>

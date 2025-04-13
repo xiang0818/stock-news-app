@@ -3,7 +3,7 @@
       <h2 class="filter-title">股票热点消息<span class="filter-subtitle">实时热点跟踪</span></h2>
       <div class="filter-container">
         <button 
-          v-for="filter in filters" 
+          v-for="filter in fixedFilters" 
           :key="filter.id"
           class="filter-btn"
           :class="{ 
@@ -61,6 +61,53 @@
         type: String,
         default: '21101'
       }
+    },
+    data() {
+      return {
+        // 固定显示的标签，不依赖接口返回
+        fixedFilters: [
+          {
+            "id": "21101",
+            "name": "全部",
+            "bury": "all"
+          },
+          {
+            "id": "-21101",
+            "name": "重要",
+            "bury": "zy"
+          },
+          {
+            "id": "21103",
+            "name": "A股",
+            "bury": "ag"
+          },
+          {
+            "id": "21105",
+            "name": "港股",
+            "bury": "gg"
+          },
+          {
+            "id": "21107",
+            "name": "美股",
+            "bury": "mg"
+          },
+          {
+            "id": "21109",
+            "name": "机会",
+            "bury": "jh"
+          },
+          {
+            "id": "21111",
+            "name": "异动",
+            "bury": "yd"
+          },
+          {
+            "id": "34843",
+            "name": "公告",
+            "bury": "34843"
+          }
+        ]
+      };
     },
     methods: {
       onFilterClick(filterId) {
@@ -264,5 +311,25 @@
   
   .dark-theme .filter-btn.active.a-stock {
     background-color: #ff5b69;
+  }
+  
+  .dark-theme .filter-btn.active.hk-stock {
+    background-color: #ffb347;
+  }
+  
+  .dark-theme .filter-btn.active.us-stock {
+    background-color: #34495e;
+  }
+  
+  .dark-theme .filter-btn.active.opportunity {
+    background-color: #9b59b6;
+  }
+  
+  .dark-theme .filter-btn.active.change {
+    background-color: #e67e22;
+  }
+  
+  .dark-theme .filter-btn.active.announcement {
+    background-color: #95a5a6;
   }
   </style>
