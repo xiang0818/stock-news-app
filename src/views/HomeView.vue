@@ -52,6 +52,9 @@
         <button @click="refreshNews" class="floating-refresh-btn" title="立即刷新">
           <i class="fas fa-sync-alt"></i>
         </button>
+        <button @click="scrollToTop" class="floating-top-btn" title="返回顶部">
+          <i class="fas fa-arrow-up"></i>
+        </button>
       </div>
       
       <loading-spinner v-if="loading" />
@@ -66,8 +69,12 @@
         
         <div v-if="!loading && hasMore" class="load-more-container">
           <button @click="loadMoreNews" class="load-more-btn">
-            显示更多
+            {{ isLoadingMore ? '加载中...' : '显示更多' }}
           </button>
+        </div>
+        
+        <div v-if="!loading && !hasMore" class="no-more-container">
+          <p>没有更多新闻了</p>
         </div>
       </template>
 
@@ -106,7 +113,9 @@
         countdown: 10,
         showToast: false,
         toastMessage: '',
-        toastTimeout: null
+        toastTimeout: null,
+        isLoadingMore: false,
+        scrollHandler: null
       };
     },
     computed: {
@@ -128,10 +137,17 @@
       
       // 监听滚动事件，控制浮动刷新按钮的显示和隐藏
       window.addEventListener('scroll', this.handleScroll);
+      
+      // 添加滚动加载事件监听
+      this.scrollHandler = this.handleScrollLoad.bind(this);
+      window.addEventListener('scroll', this.scrollHandler);
     },
     beforeDestroy() {
       // 移除滚动事件监听
       window.removeEventListener('scroll', this.handleScroll);
+      if (this.scrollHandler) {
+        window.removeEventListener('scroll', this.scrollHandler);
+      }
       if (this.toastTimeout) {
         clearTimeout(this.toastTimeout);
       }
@@ -191,11 +207,35 @@
         }, 3000);
       },
       
-      loadMoreNews() {
-        // 不再调用API，只是增加显示数量
-        this.displayLimit += 20;
-        this.displayedNews = this.allNewsList.slice(0, this.displayLimit);
-        this.hasMore = this.displayLimit < this.allNewsList.length;
+      handleScrollLoad() {
+        // 如果正在加载或没有更多数据，则不触发加载
+        if (this.isLoadingMore || !this.hasMore) return;
+        
+        // 获取页面底部距离视窗顶部的距离
+        const scrollHeight = document.documentElement.scrollHeight;
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const clientHeight = document.documentElement.clientHeight;
+        
+        // 当滚动到距离底部100px时触发加载
+        if (scrollHeight - scrollTop - clientHeight < 100) {
+          this.loadMoreNews();
+        }
+      },
+      
+      async loadMoreNews() {
+        // 如果正在加载或没有更多数据，则不触发加载
+        if (this.isLoadingMore || !this.hasMore) return;
+        
+        this.isLoadingMore = true;
+        
+        try {
+          // 增加显示数量
+          this.displayLimit += 20;
+          this.displayedNews = this.allNewsList.slice(0, this.displayLimit);
+          this.hasMore = this.displayLimit < this.allNewsList.length;
+        } finally {
+          this.isLoadingMore = false;
+        }
       },
       
       handleFilterChange(filterId) {
@@ -229,6 +269,13 @@
       resetCountdown() {
         this.countdown = 10;
         this.updateLastUpdateTime();
+      },
+      
+      scrollToTop() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
       },
       
       handleScroll() {
@@ -385,6 +432,7 @@
   .load-more-container {
     text-align: center;
     margin: 2rem 0;
+    padding: 1rem;
   }
   
   .load-more-btn {
@@ -395,11 +443,52 @@
     padding: 10px 20px;
     cursor: pointer;
     font-size: 1rem;
-    transition: background-color 0.3s;
+    transition: all 0.3s;
+    min-width: 120px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
   }
   
   .load-more-btn:hover {
     background-color: #d1d8e0;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .load-more-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .no-more-container {
+    text-align: center;
+    margin: 2rem 0;
+    padding: 1rem;
+    color: var(--grey-color);
+  }
+  
+  .no-more-container p {
+    font-size: 0.9rem;
+    margin: 0;
+  }
+  
+  /* 暗黑模式适配 */
+  .dark-theme .load-more-btn {
+    background-color: rgba(31, 184, 226, 0.1);
+    color: #e0f4ff;
+  }
+  
+  .dark-theme .load-more-btn:hover {
+    background-color: rgba(31, 184, 226, 0.2);
+    box-shadow: 0 2px 8px rgba(31, 184, 226, 0.2);
+  }
+  
+  .dark-theme .no-more-container {
+    color: rgba(255, 255, 255, 0.5);
   }
   
   /* 悬浮刷新控件 */
@@ -446,6 +535,27 @@
     transform: rotate(180deg);
   }
   
+  .floating-top-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+  }
+  
+  .floating-top-btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  }
+  
   /* 暗黑模式下的浮动刷新按钮 */
   .dark-theme .floating-refresh {
     background-color: rgba(30, 39, 46, 0.8);
@@ -459,6 +569,16 @@
   
   .dark-theme .floating-refresh-btn:hover {
     background-color: #d32f3d;
+  }
+  
+  .dark-theme .floating-top-btn {
+    background-color: #1f8ede;
+    box-shadow: 0 0 10px rgba(31, 142, 222, 0.3);
+  }
+  
+  .dark-theme .floating-top-btn:hover {
+    background-color: #1a7bbf;
+    box-shadow: 0 0 15px rgba(31, 142, 222, 0.5);
   }
   
   /* 移动端适配 */
