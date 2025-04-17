@@ -53,7 +53,7 @@ const newsApi = {
   // 获取首页200条新闻
   async getInitialNews(tag = '') {
     try {
-      let url = `${getBaseUrl()}/tapp/news/push/stock/?page=1&tag=${tag}&track=website&pagesize=200`;
+      let url = `${getBaseUrl()}/tapp/news/push/stock/?page=1&tag=${tag}&track=website&pagesize=100`;
       const response = await apiClient.get(url);
       
       // 验证响应数据结构

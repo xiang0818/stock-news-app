@@ -112,6 +112,17 @@
     methods: {
       onFilterClick(filterId) {
         this.$emit('filter-changed', filterId);
+      },
+      scrollToTop() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+        
+        // 更新浮动按钮的可见状态
+        setTimeout(() => {
+          this.handleScroll(); // 重新检查滚动位置
+        }, 300); // 等待滚动动画完成后再检查
       }
     }
   };

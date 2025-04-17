@@ -584,9 +584,28 @@
   /* 移动端适配 */
   @media (max-width: 767px) {
     .floating-refresh {
-      bottom: 70px;
-      right: 15px;
-      padding: 8px;
+      bottom: 20px;
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%);
+      flex-direction: row;
+      padding: 8px 16px;
+      border-radius: 30px;
+      gap: 12px;
+      background-color: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .floating-countdown {
+      order: 2;
+    }
+    
+    .floating-refresh-btn {
+      order: 1;
+    }
+    
+    .floating-top-btn {
+      order: 3;
     }
     
     .news-refresh {
