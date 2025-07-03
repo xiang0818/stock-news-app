@@ -11,6 +11,10 @@
             <span v-if="lastUpdateTime" class="last-update">
               上次更新: {{ lastUpdateTime }}
             </span>
+            <span class="keyboard-shortcuts">
+              <i class="fas fa-keyboard"></i>
+              快捷键: Ctrl+↑/↓ 滚动3个区块
+            </span>
           </div>
           
           <div class="refresh-controls">
@@ -141,6 +145,9 @@
       // 添加滚动加载事件监听
       this.scrollHandler = this.handleScrollLoad.bind(this);
       window.addEventListener('scroll', this.scrollHandler);
+      
+      // 添加键盘快捷键监听
+      window.addEventListener('keydown', this.handleKeydown);
     },
     beforeDestroy() {
       // 移除滚动事件监听
@@ -151,6 +158,9 @@
       if (this.toastTimeout) {
         clearTimeout(this.toastTimeout);
       }
+      
+      // 移除键盘事件监听
+      window.removeEventListener('keydown', this.handleKeydown);
     },
     methods: {
       async fetchInitialNews() {
@@ -285,6 +295,49 @@
         } else {
           floatingRefresh.classList.remove('visible');
         }
+      },
+      
+      handleKeydown(event) {
+        // 检查是否按下了Ctrl键
+        if (!event.ctrlKey) return;
+        
+        // 阻止默认行为
+        event.preventDefault();
+        
+        if (event.key === 'ArrowUp') {
+          // Ctrl + 向上：向上滚动3个新闻区块
+          this.scrollByNewsBlocks(-3);
+        } else if (event.key === 'ArrowDown') {
+          // Ctrl + 向下：向下滚动3个新闻区块
+          this.scrollByNewsBlocks(3);
+        }
+      },
+      
+      scrollByNewsBlocks(direction) {
+        // 获取所有新闻卡片元素
+        const newsCards = document.querySelectorAll('.news-card');
+        if (newsCards.length === 0) return;
+        
+        // 计算每个新闻卡片的实际高度（包含padding和margin）
+        const cardHeight = 200; // 新闻卡片的实际高度（包含padding 1.5rem * 2 + 内容高度）
+        const cardMargin = 16; // 卡片间距
+        const totalCardHeight = cardHeight + cardMargin;
+        
+        // 计算3个区块的总高度
+        const blockHeight = totalCardHeight * 3;
+        
+        // 计算滚动距离
+        const scrollDistance = direction * blockHeight;
+        
+        // 执行平滑滚动
+        window.scrollBy({
+          top: scrollDistance,
+          behavior: 'smooth'
+        });
+        
+        // 显示滚动提示
+        const directionText = direction > 0 ? '向下' : '向上';
+        this.showToastMessage(`已${directionText}滚动3个新闻区块 (Ctrl+↑/↓ 快捷键)`);
       }
     },
     watch: {
@@ -353,12 +406,37 @@
     display: flex;
     align-items: center;
     flex: 1;
+    gap: 1rem;
   }
   
   .last-update {
     font-size: 0.9rem;
     color: var(--primary-color);
     font-weight: 500;
+  }
+  
+  .keyboard-shortcuts {
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgba(52, 152, 219, 0.1);
+    padding: 4px 8px;
+    border-radius: var(--radius-small);
+    border: 1px solid rgba(52, 152, 219, 0.2);
+  }
+  
+  .keyboard-shortcuts i {
+    font-size: 0.8rem;
+  }
+  
+  /* 暗黑模式下的快捷键提示样式 */
+  .dark-theme .keyboard-shortcuts {
+    background-color: rgba(31, 184, 226, 0.1);
+    color: #e0f4ff;
+    border-color: rgba(31, 184, 226, 0.2);
   }
   
   .countdown-container {
