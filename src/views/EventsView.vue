@@ -470,6 +470,12 @@ export default {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
+  border: 2px solid var(--grey-color);
+}
+
+.events-table th,
+.events-table td {
+  border: 2px solid var(--light-grey);
 }
 
 .events-table th {
@@ -478,7 +484,7 @@ export default {
   font-weight: 600;
   padding: 1rem 0.75rem;
   text-align: left;
-  border-bottom: 2px solid var(--grey-color);
+  border-bottom: 3px solid var(--grey-color);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -486,8 +492,12 @@ export default {
 
 .events-table td {
   padding: 1rem 0.75rem;
-  border-bottom: 1px solid var(--light-grey);
+  border-bottom: 2px solid var(--light-grey);
   vertical-align: top;
+}
+
+.events-table {
+  border: 2px solid var(--grey-color);
 }
 
 .event-row {
