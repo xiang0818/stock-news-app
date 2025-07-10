@@ -3,6 +3,7 @@ import App from './App.vue';
 import axios from 'axios';
 import VueRouter from 'vue-router';
 import HomeView from './views/HomeView.vue';
+import EventsView from './views/EventsView.vue';
 //
 Vue.config.productionTip = false;
 Vue.use(VueRouter);
@@ -17,6 +18,11 @@ const router = new VueRouter({
       path: '/',
       name: 'home',
       component: HomeView
+    },
+    {
+      path: '/events',
+      name: 'events',
+      component: EventsView
     }
   ]
 });

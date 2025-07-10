@@ -7,6 +7,16 @@
             <h1 class="title">股市快讯</h1>
             <p class="subtitle">实时掌握市场动态</p>
           </div>
+          <nav class="nav-menu">
+            <router-link to="/" class="nav-item" active-class="active">
+              <i class="fas fa-newspaper"></i>
+              <span>新闻资讯</span>
+            </router-link>
+            <router-link to="/events" class="nav-item" active-class="active">
+              <i class="fas fa-calendar-alt"></i>
+              <span>事件日历</span>
+            </router-link>
+          </nav>
           <div class="theme-toggle" @click="toggleTheme">
             <i :class="isDarkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
             <span>{{ isDarkMode ? '日间模式' : '夜间模式' }}</span>
@@ -145,6 +155,7 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
 }
 
 .title-section {
@@ -166,6 +177,38 @@ a:hover {
   margin: 0;
   font-weight: 500;
   position: relative;
+}
+
+.nav-menu {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-small);
+  transition: all 0.3s;
+  font-weight: 500;
+}
+
+.nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.nav-item.active {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.nav-item i {
+  font-size: 1rem;
 }
 
 .theme-toggle {
